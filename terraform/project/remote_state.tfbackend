@@ -1,0 +1,2 @@
+shared_credentials_files = ["./../credentials"]
+key                      = "terrafor-aws-github/vpc/terraform.tfstate"
