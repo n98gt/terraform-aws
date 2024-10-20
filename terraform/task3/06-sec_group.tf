@@ -1,5 +1,5 @@
 resource "aws_security_group" "bastion" {
-  name   = "test"
+  name   = "test-bastion"
   vpc_id = aws_vpc.test.id
 
   ingress = [
@@ -43,7 +43,7 @@ resource "aws_security_group" "bastion" {
 }
 
 resource "aws_security_group" "public" {
-  name   = "test"
+  name   = "test-public"
   vpc_id = aws_vpc.test.id
 
   ingress = [
@@ -106,6 +106,17 @@ resource "aws_security_group" "private" {
       description      = "SSH"
       from_port        = 22
       to_port          = 22
+      protocol         = "tcp"
+      cidr_blocks      = ["10.0.0.0/16"]
+      ipv6_cidr_blocks = ["::/0"]
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
+    },
+    {
+      description      = "k3s-api-server"
+      from_port        = 6443
+      to_port          = 6443
       protocol         = "tcp"
       cidr_blocks      = ["10.0.0.0/16"]
       ipv6_cidr_blocks = ["::/0"]

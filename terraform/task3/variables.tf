@@ -85,3 +85,8 @@ variable "instance_tags" {
     Name = "test"
   }
 }
+
+variable "k3s_instance_type" {
+  type    = string
+  default = "t3.small"
+}
