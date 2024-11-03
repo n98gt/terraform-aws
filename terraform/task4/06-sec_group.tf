@@ -24,6 +24,17 @@ resource "aws_security_group" "bastion" {
       prefix_list_ids  = []
       security_groups  = []
       self             = false
+    },
+    {
+      description      = "port for k3s jenkins ui"
+      from_port        = 32000
+      to_port          = 32000
+      protocol         = "icmp"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
     }
   ]
 
@@ -134,7 +145,18 @@ resource "aws_security_group" "private" {
       prefix_list_ids  = []
       security_groups  = []
       self             = false
-    }
+    },
+    {
+      description      = "SSH"
+      from_port        = 32000
+      to_port          = 32000
+      protocol         = "tcp"
+      cidr_blocks      = ["10.0.0.0/16"]
+      ipv6_cidr_blocks = ["::/0"]
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
+    },
   ]
 
 
