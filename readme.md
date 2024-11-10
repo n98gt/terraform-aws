@@ -3,6 +3,7 @@
 ```console
 alias tf=terraform
 alias hm=helm
+alias k=kubectl
 ```
 ## download terraform dependencies
 ```console
@@ -47,26 +48,23 @@ ssh -L "127.0.0.1:6443:${K3S_INSTANCE_PRIVATE_IP}:6443" ubuntu@${BASTION_HOST_PU
 
 ## add iptables rule on bastion host for routing traffic to jenkins ui on k3s vm
 ```console
-iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 32000 -j DNAT --to <k3s-vm-internal ip>
+iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 30003 -j DNAT --to <k3s-vm-internal ip>
 ```
 
-## install bitnami nginx chart
+## install bitnami mysql chart
 ```console
-hm repo add bitnami https://charts.bitnami.com/bitnami
-hm install nginx-binami bitnami/nginx
+hm install mysql oci://registry-1.docker.io/bitnamicharts/mysql
 ```
 
-## remove bitnami nginx chart
+## get mysql root password
 ```console
-hm uninstall nginx-binami
+MYSQL_ROOT_PASSWORD=$(k get secret --namespace default mysql -o jsonpath="{.data.mysql-root-password}" | base64 -d)
 ```
 
-## create jenkins service acc and persistent volume
+## create secret for wordpress app with mysql password
 ```console
-kubectl apply -f https://raw.githubusercontent.com/jenkins-infra/jenkins.io/master/content/doc/tutorials/kubernetes/installing-jenkins-on-kubernetes/jenkins-sa.yaml ./terraform/task4/files/jenkins_pv.yaml
+k create secret generic wordpress --from-literal=WORDPRESS_DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
 ```
-
-## deploy jenkins helm chart — trigger github action pipeline https://github.com/n98gt/jenkins-helm-aws/actions (name: «Deploy Jenkins Helm Chart»)
 
 ## destroy resources
 ```console
