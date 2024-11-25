@@ -29,7 +29,40 @@ resource "aws_security_group" "bastion" {
       description      = "port for k3s jenkins ui"
       from_port        = 32000
       to_port          = 32000
-      protocol         = "icmp"
+      protocol         = "tcp"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
+    },
+    {
+      description      = "k3s api server"
+      from_port        = 6500
+      to_port          = 6500
+      protocol         = "tcp"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
+    },
+    {
+      description      = "http"
+      from_port        = 8000
+      to_port          = 8000
+      protocol         = "tcp"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
+    },
+    {
+      description      = "http"
+      from_port        = 80
+      to_port          = 80
+      protocol         = "tcp"
       cidr_blocks      = ["0.0.0.0/0"]
       ipv6_cidr_blocks = ["::/0"]
       prefix_list_ids  = []
@@ -147,9 +180,20 @@ resource "aws_security_group" "private" {
       self             = false
     },
     {
-      description      = "SSH"
+      description      = "jenkins-ui"
       from_port        = 32000
       to_port          = 32000
+      protocol         = "tcp"
+      cidr_blocks      = ["10.0.0.0/16"]
+      ipv6_cidr_blocks = ["::/0"]
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
+    },
+    {
+      description      = "nodejs-app"
+      from_port        = 31000
+      to_port          = 31000
       protocol         = "tcp"
       cidr_blocks      = ["10.0.0.0/16"]
       ipv6_cidr_blocks = ["::/0"]

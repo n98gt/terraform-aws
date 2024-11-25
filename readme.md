@@ -46,24 +46,46 @@ export KUBECONFIG=~/.kube/config_k3s_aws
 ssh -L "127.0.0.1:6443:${K3S_INSTANCE_PRIVATE_IP}:6443" ubuntu@${BASTION_HOST_PUBLIC_IP} -i ~/.ssh/private_key
 ```
 
+## allow traffic redirecting on bastion host
+```console
+sudo sysctl -w net.ipv4.ip_forward=1
+```
+
 ## add iptables rule on bastion host for routing traffic to jenkins ui on k3s vm
 ```console
-iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 30003 -j DNAT --to <k3s-vm-internal ip>
+sudo iptables -t nat -A POSTROUTING -o ens5 -p tcp -d <k3s-vm-internal ip> --dport 32000 -j MASQUERADE
+sudo iptables -t nat -A PREROUTING -i ens5 -p tcp --dport 32000 -j DNAT --to <k3s-vm-internal ip>
+```
+## add iptables rule on bastion host for routing traffic to k3s api server
+```console
+sudo iptables -t nat -A POSTROUTING -o ens5 -p tcp -d <k3s-vm-internal ip> --dport 6443 -j MASQUERADE
+sudo iptables -t nat -A PREROUTING -i ens5 -p tcp --dport 6500 -j DNAT --to <k3s-vm-internal ip>:6443
 ```
 
-## install bitnami mysql chart
+## add iptables rule on bastion host to route http traffic to nodejs app
 ```console
-hm install mysql oci://registry-1.docker.io/bitnamicharts/mysql
+sudo iptables -t nat -A POSTROUTING -o ens5 -p tcp -d <k3s-vm-internal ip> --dport 31000 -j MASQUERADE
+sudo iptables -t nat -A PREROUTING -i ens5 -p tcp --dport 80 -j DNAT --to <k3s-vm-internal ip>:31000
 ```
 
-## get mysql root password
+## create jenkins service acc and persistent volume (delete and recreated pv in case of jenkins helm reinstallments)
 ```console
-MYSQL_ROOT_PASSWORD=$(k get secret --namespace default mysql -o jsonpath="{.data.mysql-root-password}" | base64 -d)
+kubectl apply -f https://raw.githubusercontent.com/jenkins-infra/jenkins.io/master/content/doc/tutorials/kubernetes/installing-jenkins-on-kubernetes/jenkins-sa.yaml ./terraform/task6/files/jenkins_pv.yaml
 ```
 
-## create secret for wordpress app with mysql password
+## on vm with k3s change permissions for /data/jenkins-volume dir
 ```console
-k create secret generic wordpress --from-literal=WORDPRESS_DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
+sudo chmod 777 /data/jenkins-volume/
+```
+
+## install jenkins to k3s by running github action https://github.com/n98gt/jenkins-helm-aws/actions/workflows/deploy.yml
+
+
+## install jenkins plugins
+```
+https://plugins.jenkins.io/aws-credentials/
+https://plugins.jenkins.io/amazon-ecr/
+https://plugins.jenkins.io/docker-workflow/
 ```
 
 ## destroy resources
