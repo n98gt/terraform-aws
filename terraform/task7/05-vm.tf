@@ -42,7 +42,7 @@ resource "aws_instance" "k3s" {
   vpc_security_group_ids = [aws_security_group.private.id]
   tags                   = var.instance_tags
 
-  user_data = file("./files/install_k3s.sh")
+  user_data = file("./files/k3s_setup.sh")
 
   lifecycle {
     ignore_changes = [ami]

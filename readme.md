@@ -51,42 +51,19 @@ ssh -L "127.0.0.1:6443:${K3S_INSTANCE_PRIVATE_IP}:6443" ubuntu@${BASTION_HOST_PU
 sudo sysctl -w net.ipv4.ip_forward=1
 ```
 
-## add iptables rule on bastion host for routing traffic to jenkins ui on k3s vm
+## add iptables rules on bastion host for routing traffic to k3s api server and prometheus ui
 ```console
-sudo iptables -t nat -A POSTROUTING -o ens5 -p tcp -d <k3s-vm-internal ip> --dport 32000 -j MASQUERADE
-sudo iptables -t nat -A PREROUTING -i ens5 -p tcp --dport 32000 -j DNAT --to <k3s-vm-internal ip>
-```
-## add iptables rule on bastion host for routing traffic to k3s api server
-```console
-sudo iptables -t nat -A POSTROUTING -o ens5 -p tcp -d <k3s-vm-internal ip> --dport 6443 -j MASQUERADE
-sudo iptables -t nat -A PREROUTING -i ens5 -p tcp --dport 6500 -j DNAT --to <k3s-vm-internal ip>:6443
+export K3S_VM_INTERNAL_IP=<tf output k3s_vm_private_ip>
+sudo iptables -t nat -A POSTROUTING -o ens5 -p tcp -d ${K3S_VM_INTERNAL_IP} --dport 6443 -j MASQUERADE
+sudo iptables -t nat -A PREROUTING -i ens5 -p tcp --dport 6500 -j DNAT --to ${K3S_VM_INTERNAL_IP}:6443
+sudo iptables -t nat -A POSTROUTING -o ens5 -p tcp -d ${K3S_VM_INTERNAL_IP} --dport 31000 -j MASQUERADE
+sudo iptables -t nat -A PREROUTING -i ens5 -p tcp --dport 80 -j DNAT --to ${K3S_VM_INTERNAL_IP}:31000
 ```
 
-## add iptables rule on bastion host to route http traffic to nodejs app
-```console
-sudo iptables -t nat -A POSTROUTING -o ens5 -p tcp -d <k3s-vm-internal ip> --dport 31000 -j MASQUERADE
-sudo iptables -t nat -A PREROUTING -i ens5 -p tcp --dport 80 -j DNAT --to <k3s-vm-internal ip>:31000
-```
+## prometheus is installed during k3s instance creation by cloud-init script
 
-## create jenkins service acc and persistent volume (delete and recreated pv in case of jenkins helm reinstallments)
-```console
-kubectl apply -f https://raw.githubusercontent.com/jenkins-infra/jenkins.io/master/content/doc/tutorials/kubernetes/installing-jenkins-on-kubernetes/jenkins-sa.yaml ./terraform/task6/files/jenkins_pv.yaml
-```
+## get bastion host public ip `tf output bation_host_public_ip`. Prometheus web ui will be available on this address (http://<bation_host_public_ip>:80)
 
-## on vm with k3s change permissions for /data/jenkins-volume dir
-```console
-sudo chmod 777 /data/jenkins-volume/
-```
-
-## install jenkins to k3s by running github action https://github.com/n98gt/jenkins-helm-aws/actions/workflows/deploy.yml
-
-
-## install jenkins plugins
-```
-https://plugins.jenkins.io/aws-credentials/
-https://plugins.jenkins.io/amazon-ecr/
-https://plugins.jenkins.io/docker-workflow/
-```
 
 ## destroy resources
 ```console

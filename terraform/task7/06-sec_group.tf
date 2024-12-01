@@ -26,17 +26,6 @@ resource "aws_security_group" "bastion" {
       self             = false
     },
     {
-      description      = "port for k3s jenkins ui"
-      from_port        = 32000
-      to_port          = 32000
-      protocol         = "tcp"
-      cidr_blocks      = ["0.0.0.0/0"]
-      ipv6_cidr_blocks = ["::/0"]
-      prefix_list_ids  = []
-      security_groups  = []
-      self             = false
-    },
-    {
       description      = "k3s api server"
       from_port        = 6500
       to_port          = 6500
@@ -123,7 +112,18 @@ resource "aws_security_group" "public" {
       prefix_list_ids  = []
       security_groups  = []
       self             = false
-    }
+    },
+    {
+      description      = "k3s api server"
+      from_port        = 6500
+      to_port          = 6500
+      protocol         = "tcp"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
+    },
   ]
 
 
@@ -173,17 +173,6 @@ resource "aws_security_group" "private" {
       from_port        = -1
       to_port          = -1
       protocol         = "icmp"
-      cidr_blocks      = ["10.0.0.0/16"]
-      ipv6_cidr_blocks = ["::/0"]
-      prefix_list_ids  = []
-      security_groups  = []
-      self             = false
-    },
-    {
-      description      = "jenkins-ui"
-      from_port        = 32000
-      to_port          = 32000
-      protocol         = "tcp"
       cidr_blocks      = ["10.0.0.0/16"]
       ipv6_cidr_blocks = ["::/0"]
       prefix_list_ids  = []
