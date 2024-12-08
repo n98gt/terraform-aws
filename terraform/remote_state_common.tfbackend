@@ -1,0 +1,15 @@
+profile = "default"
+bucket  = "terraform-state-n98gt"
+
+dynamodb_table = "terraform-state-locking"
+
+# endpoints = {
+#   s3       = "https://storage.yandexcloud.net"
+#   dynamodb = "https://docapi.serverless.yandexcloud.net/ru-central1/b1gfhdq0fo8rju2r0im7/etnrcso18o7gaggrn3vr" # tf output tf_state_lock_endpoint
+# }
+
+region                      = "eu-north-1"
+skip_region_validation      = true
+skip_credentials_validation = true
+skip_requesting_account_id  = true # required for tf v1.6.1+
+skip_s3_checksum            = true # required for tf v1.6.3+
