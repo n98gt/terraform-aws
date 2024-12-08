@@ -13,6 +13,11 @@ tf init -backend-config=$(git rev-parse --show-toplevel)/terraform/remote_state_
 
 ## create credentilas file with aws credentials (terraform/credentials)
 
+## create file with secret vars
+```console
+cp secrets.auto.tfvars.example secrets.auto.tfvars
+```
+
 ## create cloud resources
 ```console
 tf plan -out tfplan
@@ -58,12 +63,15 @@ sudo iptables -t nat -A POSTROUTING -o ens5 -p tcp -d ${K3S_VM_INTERNAL_IP} --dp
 sudo iptables -t nat -A PREROUTING -i ens5 -p tcp --dport 6500 -j DNAT --to ${K3S_VM_INTERNAL_IP}:6443
 sudo iptables -t nat -A POSTROUTING -o ens5 -p tcp -d ${K3S_VM_INTERNAL_IP} --dport 31000 -j MASQUERADE
 sudo iptables -t nat -A PREROUTING -i ens5 -p tcp --dport 80 -j DNAT --to ${K3S_VM_INTERNAL_IP}:31000
+sudo iptables -t nat -A POSTROUTING -o ens5 -p tcp -d ${K3S_VM_INTERNAL_IP} --dport 31001 -j MASQUERADE
+sudo iptables -t nat -A PREROUTING -i ens5 -p tcp --dport 8000 -j DNAT --to ${K3S_VM_INTERNAL_IP}:31001
 ```
 
-## prometheus is installed during k3s instance creation by cloud-init script
+## prometheus & grafana are installed during k3s instance creation by cloud-init script
 
-## get bastion host public ip `tf output bation_host_public_ip`. Prometheus web ui will be available on this address (http://<bation_host_public_ip>:80)
-
+## get bastion host public ip `tf output bation_host_public_ip`.
+## Prometheus web ui will be available on this address (http://<bation_host_public_ip>:80)
+## Grafana web ui will be available on this address (http://<bation_host_public_ip>:8000)
 
 ## destroy resources
 ```console

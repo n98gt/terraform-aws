@@ -90,3 +90,8 @@ variable "k3s_instance_type" {
   type    = string
   default = "t3.small"
 }
+
+variable "grafana_admin_password" {
+  type      = string
+  sensitive = true
+}

@@ -92,6 +92,17 @@ resource "aws_security_group" "public" {
       self             = false
     },
     {
+      description      = "allow http traffic"
+      from_port        = 8000
+      to_port          = 8000
+      protocol         = "tcp"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
+    },
+    {
       description      = "allow https traffic"
       from_port        = 443
       to_port          = 443
@@ -180,9 +191,20 @@ resource "aws_security_group" "private" {
       self             = false
     },
     {
-      description      = "nodejs-app"
+      description      = "prometheus-ui"
       from_port        = 31000
       to_port          = 31000
+      protocol         = "tcp"
+      cidr_blocks      = ["10.0.0.0/16"]
+      ipv6_cidr_blocks = ["::/0"]
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
+    },
+    {
+      description      = "grafana-ui"
+      from_port        = 31001
+      to_port          = 31001
       protocol         = "tcp"
       cidr_blocks      = ["10.0.0.0/16"]
       ipv6_cidr_blocks = ["::/0"]

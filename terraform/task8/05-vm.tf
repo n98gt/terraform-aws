@@ -41,6 +41,7 @@ resource "aws_instance" "k3s" {
   subnet_id              = aws_subnet.private_1.id
   vpc_security_group_ids = [aws_security_group.private.id]
   tags                   = var.instance_tags
+  iam_instance_profile   = aws_iam_instance_profile.k3s_vm.name
 
   user_data = file("./files/k3s_setup.sh")
 
